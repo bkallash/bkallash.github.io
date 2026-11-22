@@ -1,0 +1,29 @@
+---
+import { copy, type Lang } from '../data/i18n';
+
+interface Props {
+  lang: Lang;
+  // The last item is the current page and has no link.
+  items: { label: string; href?: string }[];
+}
+const { lang, items } = Astro.props;
+---
+
+<nav aria-label={copy[lang].ui.breadcrumb} class="text-[0.9375rem]">
+  <ol class="flex flex-wrap items-center gap-x-2 gap-y-1">
+    {
+      items.map((item, i) => (
+        <li class="flex items-center gap-2">
+          {i > 0 && <span class="text-muted/50" aria-hidden="true">/</span>}
+          {item.href ? (
+            <a href={item.href} class="text-muted underline-offset-4 transition-colors hover:text-fg hover:underline">
+              {item.label}
+            </a>
+          ) : (
+            <span aria-current="page">{item.label}</span>
+          )}
+        </li>
+      ))
+    }
+  </ol>
+</nav>

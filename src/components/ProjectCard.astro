@@ -1,0 +1,34 @@
+---
+import { copy, href, type Lang } from '../data/i18n';
+import { featured, type Slug } from '../data/shared';
+
+interface Props {
+  lang: Lang;
+  slug: Slug;
+}
+const { lang, slug } = Astro.props;
+const t = copy[lang];
+const project = featured.find((f) => f.slug === slug)!;
+const p = t.projects[slug];
+---
+
+<a href={href(lang, `/work/${slug}`)} class="on-scroll group block">
+  <div class="overflow-hidden rounded-lg border border-line transition-colors duration-300 group-hover:border-white/30">
+    <img
+      src={`/img/${project.shots[0]}.webp`}
+      alt=""
+      width="1600"
+      height="1000"
+      loading="lazy"
+      class="aspect-[16/10] w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03] motion-reduce:transition-none"
+    />
+  </div>
+  <p class="mt-4 text-sm text-muted">
+    {'folio' in project ? t.caseStudy.folio : t.caseStudy.inDev}
+  </p>
+  <h3 class="mt-1 text-lg font-medium">
+    {p.title}
+    <span class="inline-block text-muted transition-transform group-hover:translate-x-0.5 rtl:-scale-x-100 rtl:group-hover:-translate-x-0.5" aria-hidden="true">→</span>
+  </h3>
+  <p class="mt-1 text-muted">{p.summary}</p>
+</a>

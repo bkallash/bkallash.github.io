@@ -1,0 +1,150 @@
+---
+import Base from '../layouts/Base.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import { copy, href, type Lang } from '../data/i18n';
+import { featured, type Slug } from '../data/shared';
+
+interface Props {
+  lang: Lang;
+  slug: Slug;
+}
+const { lang, slug } = Astro.props;
+const t = copy[lang];
+const p = t.projects[slug];
+const i = featured.findIndex((f) => f.slug === slug);
+const project = featured[i];
+const next = featured[(i + 1) % featured.length];
+---
+
+<Base lang={lang} title={`${p.title} · ${t.name}`} description={p.problem}>
+  <article class="pt-10 pb-16 sm:pt-16">
+    <Breadcrumb
+      lang={lang}
+      items={[{ label: t.ui.home, href: href(lang, '/') }, { label: t.work.title, href: href(lang, '/work') }, { label: p.title }]}
+    />
+
+    <header class="mt-10">
+      <p data-reveal class="flex flex-wrap items-center gap-3 text-sm text-muted">
+        {'folio' in project && t.caseStudy.folio}
+        {'inDev' in project && <span class="rounded border border-line px-2 py-0.5">{t.caseStudy.inDev}</span>}
+      </p>
+      <h1 data-reveal style="--i:1" class="text-gradient mt-3 text-4xl font-medium sm:text-5xl ltr:tracking-tight">{p.title}</h1>
+      <p data-reveal style="--i:2" class="mt-6 max-w-[62ch] text-xl text-pretty">{p.problem}</p>
+      <p data-reveal style="--i:3" class="mt-3 max-w-[62ch] text-xl text-muted text-pretty">{p.outcome}</p>
+    </header>
+
+    <section class="mt-16" aria-labelledby="how">
+      <h2 id="how" class="heading">{t.caseStudy.how}</h2>
+      <div class="relative mt-6">
+        <span class="rail" aria-hidden="true"></span>
+        <span class="rail rail-fill" aria-hidden="true"></span>
+        <ol>
+          {
+            p.flow.map((s, n) => (
+              <li class="on-scroll relative ps-6 pb-6 last:pb-0">
+                <span
+                  class:list={['absolute -start-[4px] top-1.5 size-[9px] rounded-full', s.person ? 'border border-fg bg-bg' : 'bg-fg']}
+                  aria-hidden="true"
+                />
+                <p>
+                  <span class="text-sm text-muted tabular-nums">{String(n + 1).padStart(2, '0')}</span>
+                  <span class="ms-2 font-medium">{s.step}</span>
+                  {s.person && <span class="ms-2 text-sm text-muted">({t.caseStudy.person})</span>}
+                </p>
+                <p class="mt-1 max-w-[62ch] text-muted">{s.text}</p>
+              </li>
+            ))
+          }
+        </ol>
+      </div>
+      <p class="mt-10 max-w-[62ch] border-s-2 border-fg/40 ps-4 text-lg text-pretty">“{p.rule}”</p>
+    </section>
+
+    <section class="mt-16" aria-labelledby="results">
+      <h2 id="results" class="heading">{t.caseStudy.results}</h2>
+      <dl class="mt-6 grid gap-6 sm:grid-cols-3">
+        {
+          p.results.map((r) => (
+            <div class="on-scroll flex flex-col rounded-lg border border-line bg-linear-to-b from-white/[.06] to-transparent p-5">
+              <dt class="order-2 mt-2">{r.label}</dt>
+              <dd class="text-gradient order-1 text-4xl font-medium tabular-nums">
+                <span data-count aria-hidden="true">{r.value}</span><span class="sr-only">{r.value}</span>
+              </dd>
+              <dd class="order-3 mt-1 text-sm text-muted">{r.note}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </section>
+
+    <section class="mt-16" aria-labelledby="screens">
+      <h2 id="screens" class="heading">{t.caseStudy.screens}</h2>
+      <div class="mt-6 space-y-10">
+        {
+          project.shots.map((shot, n) => (
+            <figure class="on-scroll">
+              <img src={`/img/${shot}.webp`} alt={p.captions[n]} width="1600" height="1000" loading="lazy" class="w-full rounded-lg border border-line" />
+              <figcaption class="mt-3 text-muted">{p.captions[n]}</figcaption>
+            </figure>
+          ))
+        }
+      </div>
+    </section>
+
+    <section class="mt-16" aria-labelledby="stack">
+      <h2 id="stack" class="heading">{t.caseStudy.stack}</h2>
+      <p class="mt-4">{project.stack.join(' · ')}</p>
+    </section>
+
+    <a href={href(lang, `/work/${next.slug}`)} class="group mt-16 flex items-baseline justify-between gap-4 fade-rule pt-8">
+      <span class="text-muted">{t.caseStudy.next}</span>
+      <span class="text-lg font-medium">
+        {t.projects[next.slug].title}
+        <span class="inline-block text-muted transition-transform group-hover:translate-x-0.5 rtl:-scale-x-100" aria-hidden="true">→</span>
+      </span>
+    </a>
+  </article>
+</Base>
+
+<style>
+  /* Timeline rail; the white fill grows as the steps scroll into view. */
+  .rail { position: absolute; inset-block: 0.5rem; inset-inline-start: 0; width: 1px; background: var(--color-line); }
+  .rail-fill { background: linear-gradient(var(--color-fg), #ffffff33); transform-origin: top; }
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      .rail-fill { animation: grow linear both; animation-timeline: view(); animation-range: entry 20% cover 70%; }
+    }
+  }
+  @keyframes grow { from { transform: scaleY(0); } }
+</style>
+
+<script>
+  // Count result numbers up from zero when they scroll into view. "5.7h" -> 5.7 + "h", "8/8" -> 8 + "/8".
+  const run = () => {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const io = new IntersectionObserver((entries) => {
+      for (const { isIntersecting, target } of entries) {
+        if (!isIntersecting) continue;
+        io.unobserve(target);
+        const el = target as HTMLElement;
+        const [, num, rest] = el.dataset.final!.match(/^(\d+(?:\.\d+)?)(.*)$/s)!;
+        const decimals = num.split('.')[1]?.length ?? 0;
+        const start = performance.now();
+        const tick = (now: number) => {
+          const k = Math.min((now - start) / 1400, 1);
+          const eased = 1 - Math.pow(2, -10 * k);
+          el.textContent = (Number(num) * (k === 1 ? 1 : eased)).toFixed(decimals) + rest;
+          if (k < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      }
+    }, { threshold: 0.6 });
+    for (const el of document.querySelectorAll<HTMLElement>('[data-count]')) {
+      if (!/^\d/.test(el.textContent!.trim())) continue;
+      el.dataset.final = el.textContent!.trim();
+      el.textContent = el.dataset.final.replace(/^[\d.]+/, (n) => (0).toFixed(n.split('.')[1]?.length ?? 0));
+      io.observe(el);
+    }
+  };
+  document.addEventListener('astro:page-load', run);
+</script>

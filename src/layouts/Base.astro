@@ -1,0 +1,75 @@
+---
+import { ClientRouter } from 'astro:transitions';
+import '../styles/global.css';
+import { copy, href, type Lang } from '../data/i18n';
+
+interface Props {
+  lang: Lang;
+  title: string;
+  description: string;
+}
+const { lang, title, description } = Astro.props;
+const t = copy[lang];
+const other: Lang = lang === 'en' ? 'ar' : 'en';
+const path = Astro.url.pathname.replace(/^\/ar(?=\/|$)/, '') || '/';
+const nav = [
+  { label: t.about.title, href: href(lang, '/#about') },
+  { label: t.work.title, href: href(lang, '/work'), current: path.startsWith('/work') },
+  { label: t.nav.contact, href: href(lang, '/#contact') },
+];
+---
+
+<!doctype html>
+<html lang={lang} dir={lang === 'ar' ? 'rtl' : 'ltr'}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#000000" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="alternate" hreflang="en" href={href('en', path)} />
+    <link rel="alternate" hreflang="ar" href={href('ar', path)} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@300..600&family=Vazirmatn:wght@300..700&display=swap"
+    />
+    <ClientRouter />
+  </head>
+  <body class="min-h-dvh">
+    <a href="#main" class="skip">{t.ui.skip}</a>
+    <div class="backdrop" aria-hidden="true" transition:persist></div>
+    <div class="mx-auto max-w-4xl px-5 sm:px-8">
+      <header class="flex flex-wrap items-center gap-x-8 gap-y-2 py-6 text-[0.9375rem]">
+        <a href={href(lang, '/')} class="me-auto font-medium">{t.name}</a>
+        <nav aria-label={t.ui.nav}>
+          <ul class="flex gap-6">
+            {
+              nav.map((n) => (
+                <li>
+                  <a
+                    href={n.href}
+                    aria-current={n.current ? 'page' : undefined}
+                    class="text-muted transition-colors hover:text-fg aria-[current=page]:text-fg"
+                  >
+                    {n.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+        <a href={href(other, path)} hreflang={other} lang={other} class="text-muted transition-colors hover:text-fg">{t.ui.switchTo}</a>
+      </header>
+      <main id="main">
+        <slot />
+      </main>
+      <footer class="flex flex-wrap items-center justify-between gap-4 fade-rule py-8 text-sm text-muted">
+        <span>{t.status}</span>
+        <span>© {new Date().getFullYear()} {t.name}</span>
+      </footer>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,77 @@
+---
+import Base from '../layouts/Base.astro';
+import Breadcrumb from '../components/Breadcrumb.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { copy, href, type Lang } from '../data/i18n';
+import { capabilities, featured, minor } from '../data/shared';
+
+interface Props {
+  lang: Lang;
+}
+const { lang } = Astro.props;
+const t = copy[lang];
+const arrow = 'inline-block text-muted rtl:-scale-x-100';
+---
+
+<Base lang={lang} title={`${t.work.title} · ${t.name}`} description={t.work.intro}>
+  <section class="pt-10 pb-16 sm:pt-14">
+    <Breadcrumb lang={lang} items={[{ label: t.ui.home, href: href(lang, '/') }, { label: t.work.title }]} />
+    <h1 data-reveal class="text-gradient mt-8 text-4xl font-medium sm:text-5xl ltr:tracking-tight">{t.work.title}</h1>
+    <p data-reveal style="--i:1" class="mt-4 max-w-[55ch] text-lg text-muted text-pretty">{t.work.intro}</p>
+  </section>
+
+  <section class="fade-rule py-16" aria-labelledby="featured">
+    <h2 id="featured" class="heading">{t.work.featuredTitle}</h2>
+    <div class="mt-8 grid gap-12 sm:grid-cols-2 sm:gap-8 lg:grid-cols-3">
+      {featured.map((f) => <ProjectCard lang={lang} slug={f.slug} />)}
+    </div>
+  </section>
+
+  <section class="fade-rule py-16" aria-labelledby="caps">
+    <h2 id="caps" class="heading">{t.work.capsTitle}</h2>
+    <ul class="mt-8 grid gap-x-8 gap-y-10 sm:grid-cols-2">
+      {
+        capabilities.map((c) => (
+          <li class="on-scroll">
+            <h3 class="font-medium">{t.work.capabilities[c.key].name}</h3>
+            <p class="mt-1 text-muted">{t.work.capabilities[c.key].line}</p>
+            <p class="mt-2 flex flex-wrap gap-x-4 text-sm">
+              {c.projects.map((slug) => (
+                <a href={href(lang, `/work/${slug}`)} class="underline decoration-white/30 underline-offset-4 transition-colors hover:decoration-white">
+                  {t.projects[slug].title}
+                </a>
+              ))}
+            </p>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section class="fade-rule py-16" aria-labelledby="minor">
+    <h2 id="minor" class="heading">{t.work.minorTitle}</h2>
+    <ul class="mt-6 divide-y divide-line border-y border-line">
+      {
+        minor.map((m) => (
+          <li class="on-scroll grid gap-2 py-5 sm:grid-cols-[1fr_auto] sm:gap-8">
+            <div>
+              <h3 class="font-medium">{m.name}</h3>
+              <p class="mt-1 text-muted">{t.work.minor[m.key]}</p>
+              <p class="mt-1 text-sm text-muted/80">{m.stack.join(' · ')}</p>
+            </div>
+            <p class="flex gap-5">
+              <a href={m.code} target="_blank" rel="noopener" class="text-muted transition-colors hover:text-fg">
+                {t.work.code} <span class={arrow} aria-hidden="true">↗</span>
+              </a>
+              {'live' in m && (
+                <a href={m.live} target="_blank" rel="noopener" class="text-muted transition-colors hover:text-fg">
+                  {t.work.live} <span class={arrow} aria-hidden="true">↗</span>
+                </a>
+              )}
+            </p>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</Base>

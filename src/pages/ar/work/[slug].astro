@@ -1,0 +1,9 @@
+---
+import CaseStudy from '../../../views/CaseStudy.astro';
+import { featured } from '../../../data/shared';
+
+export const getStaticPaths = () => featured.map(({ slug }) => ({ params: { slug } }));
+const { slug } = Astro.params as { slug: (typeof featured)[number]['slug'] };
+---
+
+<CaseStudy lang="ar" slug={slug} />
