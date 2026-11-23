@@ -30,8 +30,8 @@ const row = 'on-scroll grid gap-1 py-5 sm:grid-cols-[10rem_1fr] sm:gap-6';
       {t.home.line.split(' ').map((w, i) => <><span class="word" style={`--i:${i}`}>{w}</span>{' '}</>)}
     </p>
     <p data-reveal style="--i:9" class="mt-10 flex flex-wrap gap-3 text-base">
-      <a href="#contact" class="rounded-md bg-linear-to-b from-white to-[#c9c9c9] px-5 py-2.5 font-medium text-bg transition-opacity hover:opacity-85">{t.nav.contact}</a>
-      <a href={links.cv} download class="group rounded-md border border-line px-5 py-2.5 transition-colors hover:border-white/40">
+      <a href="#contact" class="rounded-md bg-linear-to-b from-white to-[#c9c9c9] px-5 py-2.5 font-medium text-bg transition hover:opacity-85 active:scale-[.98]">{t.nav.contact}</a>
+      <a href={links.cv} download class="group rounded-md border border-line px-5 py-2.5 transition hover:border-white/40 active:scale-[.98]">
         {t.ui.downloadCv} <span class="inline-block transition-transform group-hover:translate-y-0.5" aria-hidden="true">↓</span>
       </a>
     </p>
@@ -89,7 +89,7 @@ const row = 'on-scroll grid gap-1 py-5 sm:grid-cols-[10rem_1fr] sm:gap-6';
                 download={c.download}
                 target={c.href.startsWith('http') ? '_blank' : undefined}
                 rel="noopener"
-                class="group flex items-center justify-between gap-4 rounded-xl border border-line bg-black/60 px-5 py-4 backdrop-blur-sm transition-colors duration-200 hover:border-white/35 hover:bg-white/[.06]"
+                class="group flex items-center justify-between gap-4 rounded-xl border border-line bg-black/60 px-5 py-4 backdrop-blur-sm transition duration-200 hover:border-white/35 hover:bg-white/[.06] active:scale-[.98]"
               >
                 <span class="min-w-0">
                   <span class="block text-sm text-muted">{c.label}</span>
@@ -145,13 +145,41 @@ const row = 'on-scroll grid gap-1 py-5 sm:grid-cols-[10rem_1fr] sm:gap-6';
   @media (prefers-reduced-motion: no-preference) {
     @supports (animation-timeline: view()) {
       .halo {
-        animation: appear linear both;
+        animation-name: appear;
+        animation-timing-function: linear;
+        animation-fill-mode: both;
         animation-timeline: --contact;
         animation-range: entry 10% cover 45%;
       }
     }
   }
+  /* Spotlight: the panel's border lights up around the cursor (position set by the script below). */
+  .panel::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: radial-gradient(18rem circle at var(--x, 50%) var(--y, 0), #ffffff73, transparent 70%);
+    mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+    opacity: 0;
+    transition: opacity .4s;
+    pointer-events: none;
+  }
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .panel:hover::after { opacity: 1; }
+  }
   @keyframes appear {
     from { opacity: 0; }
   }
 </style>
+
+<script>
+  document.addEventListener('pointermove', (e) => {
+    const panel = (e.target as Element).closest?.<HTMLElement>('.panel');
+    if (!panel) return;
+    const r = panel.getBoundingClientRect();
+    panel.style.setProperty('--x', `${e.clientX - r.left}px`);
+    panel.style.setProperty('--y', `${e.clientY - r.top}px`);
+  });
+</script>

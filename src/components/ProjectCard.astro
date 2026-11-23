@@ -13,7 +13,7 @@ const p = t.projects[slug];
 ---
 
 <a href={href(lang, `/work/${slug}`)} class="on-scroll group block">
-  <div class="overflow-hidden rounded-lg border border-line transition-colors duration-300 group-hover:border-white/30">
+  <div data-shot={slug} class="overflow-hidden rounded-lg border border-line transition-colors duration-300 group-hover:border-white/30">
     <img
       src={`/img/${project.shots[0]}.webp`}
       alt=""
@@ -32,3 +32,16 @@ const p = t.projects[slug];
   </h3>
   <p class="mt-1 text-muted">{p.summary}</p>
 </a>
+
+<script>
+  // Home <-> /work: the same card image morphs into its new spot in the grid.
+  // Only cards on screen get a name, so an offscreen card never flies across the page.
+  const nameVisibleShots = () => {
+    for (const el of document.querySelectorAll<HTMLElement>('[data-shot]')) {
+      const { top, bottom } = el.getBoundingClientRect();
+      el.style.viewTransitionName = bottom > 0 && top < innerHeight ? `shot-${el.dataset.shot}` : 'none';
+    }
+  };
+  document.addEventListener('astro:after-preparation', nameVisibleShots);
+  document.addEventListener('astro:after-swap', nameVisibleShots);
+</script>

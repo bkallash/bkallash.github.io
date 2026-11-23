@@ -52,6 +52,8 @@ const en = {
     screens: 'Screens',
     stack: 'Stack',
     next: 'Next project',
+    zoom: 'Enlarge image',
+    close: 'Close',
   },
 
   projects: {
@@ -59,7 +61,6 @@ const en = {
       title: 'Invoice OCR',
       summary: 'Turns scanned supplier invoices into a checked VAT workbook.',
       problem: 'A tax firm typed scanned supplier invoices into a 15-column VAT sheet by hand, spending about 6 hours per batch.',
-      outcome: 'A batch now finishes in 15 minutes or less, and a person only reviews what the system flags.',
       rule: 'A value is printed on the invoice, or it stays empty.',
       flow: [
         { step: 'Upload', text: 'A customer’s scanned PDF goes in, keeping every page tied to its page number.' },
@@ -84,7 +85,6 @@ const en = {
       title: 'Zakat Chat',
       summary: 'Answers Saudi tax questions in Arabic, citing the exact article behind every point.',
       problem: 'Saudi tax rules live inside long Arabic regulations. A general chatbot answers with confidence and cites nothing.',
-      outcome: 'This chat answers in Arabic from 634 articles across 10 regulations and cites the page behind every point.',
       rule: 'Every point cites the article it rests on.',
       flow: [
         { step: 'Ask', text: 'The adviser asks a question in plain Arabic inside a private chat.' },
@@ -108,7 +108,6 @@ const en = {
       title: 'Fluentia',
       summary: 'An English writing coach where seven specialist AI reviewers grade each draft.',
       problem: 'B1–C1 English learners often write below their level. Grading everything in one pass produces soft scores, so the same mistakes keep returning.',
-      outcome: 'Fluentia splits the review across seven focused agents and tracks the mistakes that repeat.',
       rule: 'Feedback stays honest, even when it’s unflattering.',
       flow: [
         { step: 'Write', text: 'The learner writes for a realistic scenario with a defined reader, tone, and word count.', person: true },

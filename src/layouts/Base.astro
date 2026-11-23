@@ -7,8 +7,9 @@ interface Props {
   lang: Lang;
   title: string;
   description: string;
+  image?: string;
 }
-const { lang, title, description } = Astro.props;
+const { lang, title, description, image } = Astro.props;
 const t = copy[lang];
 const other: Lang = lang === 'en' ? 'ar' : 'en';
 const path = Astro.url.pathname.replace(/^\/ar(?=\/|$)/, '') || '/';
@@ -26,6 +27,10 @@ const nav = [
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    {image && <meta property="og:image" content={new URL(image, Astro.site)} />}
+    {image && <meta name="twitter:card" content="summary_large_image" />}
     <meta name="theme-color" content="#000000" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="alternate" hreflang="en" href={href('en', path)} />
@@ -52,9 +57,10 @@ const nav = [
                   <a
                     href={n.href}
                     aria-current={n.current ? 'page' : undefined}
-                    class="text-muted transition-colors hover:text-fg aria-[current=page]:text-fg"
+                    class="relative text-muted transition-colors hover:text-fg aria-[current=page]:text-fg"
                   >
                     {n.label}
+                    {n.current && <span class="nav-mark" aria-hidden="true" />}
                   </a>
                 </li>
               ))
@@ -73,3 +79,28 @@ const nav = [
     </div>
   </body>
 </html>
+
+<script>
+  // Lazy images fade in once loaded instead of popping in mid-scroll.
+  document.addEventListener('astro:page-load', () => {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    for (const img of document.querySelectorAll<HTMLImageElement>('img[loading="lazy"]')) {
+      if (img.complete) continue;
+      img.addEventListener('load', () => img.animate({ opacity: [0, 1] }, { duration: 400, easing: 'ease-out' }), { once: true });
+    }
+  });
+
+  // Contact links: once the scroll lands on the contact panel, its border glows once.
+  // Armed by the click (from any page) and spent on the first scroll end that leaves the panel in view.
+  let armedAt = 0;
+  document.addEventListener('click', (e) => {
+    if ((e.target as Element).closest?.('a[href$="#contact"]')) armedAt = Date.now();
+  });
+  addEventListener('scrollend', () => {
+    const panel = document.querySelector<HTMLElement>('#contact .panel');
+    if (!panel || Date.now() - armedAt > 3000 || panel.getBoundingClientRect().top > innerHeight) return;
+    armedAt = 0;
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    panel.animate({ borderColor: ['#ffffff1f', '#ffffff80', '#ffffff1f'] }, { duration: 1400, easing: 'ease-out' });
+  });
+</script>
