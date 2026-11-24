@@ -9,7 +9,7 @@ interface Props {
   description: string;
   image?: string;
 }
-const { lang, title, description, image } = Astro.props;
+const { lang, title, description, image = '/og/site.png' } = Astro.props;
 const t = copy[lang];
 const other: Lang = lang === 'en' ? 'ar' : 'en';
 const path = Astro.url.pathname.replace(/^\/ar(?=\/|$)/, '') || '/';
